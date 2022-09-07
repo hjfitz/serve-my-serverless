@@ -1,0 +1,12 @@
+
+port: 3001
+
+lambdas:
+  - src: src/ingestion/index.js
+    name: ingestion
+    endpoint: /ingestion
+    export: lambda_handler
+  - src: src/taxonomy-api/index.js
+    name: taxonomy-api
+    endpoint: /taxonomy
+    export: lambda_handler
