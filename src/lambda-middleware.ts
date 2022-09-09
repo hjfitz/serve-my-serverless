@@ -29,9 +29,7 @@ export function lambdaHandler(lambda: Handler, meta: LambdaMeta) {
 		}
 
 		try {
-			// better types needed here! I'll probably pick them up as I work with lambda more
-			const event = {...req.body, headers: req.headers}
-			const {statusCode, body} = await lambda(event, context, cb)
+			const {statusCode, body} = await lambda(req, context, cb)
 			res.status(statusCode).send(body)
 		} catch (err) {
 			if (err instanceof Error) {
@@ -52,7 +50,7 @@ export function resolveLambdas(expressApp: Application, lambdas: LambdaMeta[]) {
 			const file = await import(importPath)
 			expressApp.all(lambdaMeta.endpoint, lambdaHandler(file[lambdaMeta.export], lambdaMeta))
 		} catch (e: unknown) {
-			logger.warn('Unable to configure lambda', lambdaMeta)
+			logger.warn(lambdaMeta, 'Unable to configure lambda')
 			if (e instanceof Error) {
 				logger.warn('error:')
 				logger.warn(e.message)
