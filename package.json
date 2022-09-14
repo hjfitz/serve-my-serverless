@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "sms": "./build/index.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc && chmod 0755 build/*"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +16,7 @@
     "@types/express-pino-logger": "^4.0.3",
     "@types/pino": "^7.0.5",
     "chokidar": "^3.5.3",
+    "commander": "^9.4.0",
     "dotenv-flow": "^3.2.0",
     "express": "^4.18.1",
     "express-pino-logger": "^7.0.0",
@@ -20,8 +24,10 @@
     "morgan": "^1.10.0",
     "pino": "^8.5.0",
     "pino-pretty": "^9.1.0",
+    "ramda": "^0.28.0",
     "watcher": "^1.2.0",
-    "yaml": "^2.1.1"
+    "yaml": "^2.1.1",
+    "zod": "^3.19.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.102",
@@ -29,6 +35,8 @@
     "@types/express": "^4.17.13",
     "@types/morgan": "^1.9.3",
     "@types/node": "^18.7.15",
+    "@types/ramda": "^0.28.15",
+    "@vercel/ncc": "^0.34.0",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.8.2"

@@ -42,7 +42,6 @@ export function lambdaHandler(lambda: Handler, meta: LambdaMeta) {
 }
 
 
-// param hack
 export function resolveLambdas(expressApp: Application, lambdas: LambdaMeta[]) {
 	return lambdas.map(async (lambdaMeta) => {
 		try {

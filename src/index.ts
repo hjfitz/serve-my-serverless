@@ -1,15 +1,15 @@
+#!/usr/bin/env node
 import express from 'express'
 import {createHttpTerminator} from 'http-terminator'
+import {createServer, Server} from 'http'
 import chokidar from 'chokidar'
-import {parse} from 'yaml'
-import {readFileSync} from 'fs'
-import {join} from 'path'
-import dotenv from 'dotenv-flow'
+import dotenv from 'dotenv'
 
 import {appLogger, logger} from './logger'
 import {resolveLambdas} from './lambda-middleware'
 import type {AppConfig} from './types'
-import { createServer, Server } from 'http'
+import config from './config'
+
 
 
 async function spawnServer(config: AppConfig): Promise<Server> {
@@ -55,10 +55,6 @@ async function createWatcher(server: Server, config: AppConfig) {
 // todo: arg parsing
 async function main() {
 	dotenv.config()
-	const configPath = join(process.cwd(), 'config.yml')
-	logger.info(`Reading config from ${configPath}`)
-	// todo: typecheck, not just assume
-	const config = parse(readFileSync(configPath).toString()) as AppConfig
 	const server = await spawnServer(config)
 	await startServer(server, config)
 	await createWatcher(server, config)
