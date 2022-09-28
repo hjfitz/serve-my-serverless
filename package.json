@@ -7,7 +7,8 @@
     "sms": "./build/index.js"
   },
   "scripts": {
-    "build": "tsc && chmod 0755 build/*"
+    "build": "tsc && chmod 0755 build/*",
+    "dev": "tsc --watch"
   },
   "keywords": [],
   "author": "",

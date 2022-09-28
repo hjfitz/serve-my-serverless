@@ -1,10 +1,10 @@
-import type {APIGatewayProxyEvent, Handler} from 'aws-lambda'
-import type {Application, Request, Response} from 'express'
+import type { APIGatewayProxyEvent, Handler } from 'aws-lambda'
+import type { Application, Request, Response } from 'express'
 
-import type {LambdaMeta, LambdaResponse} from './types'
-import {join} from 'path'
-import {logger} from './logger'
-import {either, is, isNil, pickBy, map} from 'ramda'
+import { join } from 'path'
+import { either, is, isNil, map, pickBy } from 'ramda'
+import { logger } from './logger'
+import type { LambdaMeta, LambdaResponse } from './types'
 
 const isStringOrNull = (prop: any) => is(String, prop) || isNil(prop)
 const isObjectLiteral = (prop: any) => (!Array.isArray(prop)) && is(Object, prop)
@@ -15,6 +15,9 @@ function createProxyEvent(req: Request): APIGatewayProxyEvent {
 
 	const multiHeaders = pickBy(Array.isArray, req.headers) as Record<string, string[]>
 	const singleHeaders = pickBy(is(String), req.headers) as Record<string, string>
+
+	singleHeaders.Authorization = singleHeaders.authorization
+	singleHeaders['Accept-Language'] = singleHeaders['accept-language']
 
 	const multiQuery = pickBy(Array.isArray, req.query) as Record<string, string[]>
 	const singleQuery = map(pickBy(either(is(String), isObjectLiteral), req.query), stringifySafe) as Record<string, string>

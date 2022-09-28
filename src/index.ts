@@ -3,7 +3,7 @@ import express from 'express'
 import {createHttpTerminator} from 'http-terminator'
 import {createServer, Server} from 'http'
 import chokidar from 'chokidar'
-import dotenv from 'dotenv'
+import dotenv from 'dotenv-flow'
 
 import {appLogger, logger} from './logger'
 import {resolveLambdas} from './lambda-middleware'
@@ -51,16 +51,19 @@ async function createWatcher(server: Server, config: AppConfig) {
 		}, 500);
 }
 
-
-// todo: arg parsing
-async function main() {
+function loadAndLogEnv() {
+	logger.info('Loading env fles')
+	const files = dotenv.listDotenvFiles(process.cwd())
+	files.forEach(f => logger.info(`Loaded env from ${f}`))
 	dotenv.config()
+}
+
+
+async function main() {
+	loadAndLogEnv()
 	const server = await spawnServer(config)
 	await startServer(server, config)
 	await createWatcher(server, config)
-
 }
 
 void main()
-
-
