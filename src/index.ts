@@ -9,6 +9,7 @@ import {appLogger, logger} from './logger'
 import {resolveLambdas} from './lambda-middleware'
 import type {AppConfig} from './types'
 import config from './config'
+import { debounce } from './utils'
 
 
 
@@ -41,12 +42,14 @@ async function createWatcher(server: Server, config: AppConfig) {
 			logger.info(`Started watching ${root}`)
 			watcher.on('all', async () => {
 				logger.info('New changes found. Killing server')
-				await terminator.terminate()
-				// this spawn and save config probably needs abstracting to a new class
-				const newServer = await spawnServer(config)
+				debounce(async () => {
+					await terminator.terminate()
+					// this spawn and save config probably needs abstracting to a new class
+					const newServer = await spawnServer(config)
 				logger.info('Spawning new server')
-				await startServer(newServer, config)
-				terminator = createHttpTerminator({server: newServer})
+					await startServer(newServer, config)
+					terminator = createHttpTerminator({server: newServer})
+				})
 			})
 		}, 500);
 }

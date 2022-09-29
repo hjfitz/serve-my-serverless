@@ -1,10 +1,22 @@
 import type { APIGatewayProxyEvent, Handler } from 'aws-lambda'
 import type { Application, Request, Response } from 'express'
+import { IncomingHttpHeaders } from 'http'
 
 import { join } from 'path'
 import { either, is, isNil, map, pickBy } from 'ramda'
 import { logger } from './logger'
 import type { LambdaMeta, LambdaResponse } from './types'
+
+const titleCase = (word: string): string => word[0].toUpperCase() + word.substring(1).toLowerCase()
+
+const toUpper = (word: string): string => word.split('-').map(titleCase).join('-')
+
+function makeHeadersCaseInsensitive(headers: IncomingHttpHeaders) {
+	const upper = Object.fromEntries(Object.entries(headers).map(([k, v]) => {
+		return [toUpper(k), v]
+	}))
+	return {...headers, ...upper}
+}
 
 const isStringOrNull = (prop: any) => is(String, prop) || isNil(prop)
 const isObjectLiteral = (prop: any) => (!Array.isArray(prop)) && is(Object, prop)
@@ -13,11 +25,9 @@ const stringifySafe = (prop: string | object) => is(String, prop) ? prop : JSON.
 function createProxyEvent(req: Request): APIGatewayProxyEvent {
 	const body = (isStringOrNull(req.body) ? req.body : JSON.stringify(req.body)) as string | null
 
-	const multiHeaders = pickBy(Array.isArray, req.headers) as Record<string, string[]>
-	const singleHeaders = pickBy(is(String), req.headers) as Record<string, string>
-
-	singleHeaders.Authorization = singleHeaders.authorization
-	singleHeaders['Accept-Language'] = singleHeaders['accept-language']
+	const insensitiveHeaders = makeHeadersCaseInsensitive(req.headers)
+	const multiHeaders = pickBy(Array.isArray, insensitiveHeaders) as Record<string, string[]>
+	const singleHeaders = pickBy(is(String), insensitiveHeaders) as Record<string, string>
 
 	const multiQuery = pickBy(Array.isArray, req.query) as Record<string, string[]>
 	const singleQuery = map(pickBy(either(is(String), isObjectLiteral), req.query), stringifySafe) as Record<string, string>
@@ -31,7 +41,7 @@ function createProxyEvent(req: Request): APIGatewayProxyEvent {
 		path: req.path,
 		pathParameters: req.params,
 		queryStringParameters: singleQuery,
-		multiValueQueryStringParameters: multiQuery, // todo: parse
+		multiValueQueryStringParameters: multiQuery,
 		stageVariables: null,
 		resource: '',
 		// @ts-ignore
