@@ -1036,7 +1036,7 @@ pino-http@^6.0.0:
 
 pino-pretty@^9.1.0:
   version "9.1.0"
-  resolved "https://rscomponents.jfrog.io/rscomponents/api/npm/npm/pino-pretty/-/pino-pretty-9.1.0.tgz"
+  resolved "https://rscomponents.jfrog.io/rscomponents/api/npm/npm/pino-pretty/-/pino-pretty-9.1.0.tgz#162f525944d7eede154db8055cb0ab5e00bde0c4"
   integrity sha512-IM6NY9LLo/dVgY7/prJhCh4rAJukafdt0ibxeNOWc2fxKMyTk90SOB9Ao2HfbtShT9QPeP0ePpJktksMhSQMYA==
   dependencies:
     colorette "^2.0.7"

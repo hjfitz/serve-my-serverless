@@ -38,18 +38,21 @@ async function createWatcher(server: Server, config: AppConfig) {
 		const watcher = chokidar.watch(root)
 		let terminator = createHttpTerminator({server})
 
+		const watcherFn = debounce(async () => {
+			logger.info('New changes found. Killing server')
+			await terminator.terminate()
+			// this spawn and save config probably needs abstracting to a new class
+			const newServer = await spawnServer(config)
+			logger.info('Spawning new server')
+			await startServer(newServer, config)
+			terminator = createHttpTerminator({server: newServer})
+		})
+
 		setTimeout(() => {
 			logger.info(`Started watching ${root}`)
-			watcher.on('all', async () => {
-				logger.info('New changes found. Killing server')
-				debounce(async () => {
-					await terminator.terminate()
-					// this spawn and save config probably needs abstracting to a new class
-					const newServer = await spawnServer(config)
-				logger.info('Spawning new server')
-					await startServer(newServer, config)
-					terminator = createHttpTerminator({server: newServer})
-				})
+
+			watcher.on('all', () => {
+				watcherFn()
 			})
 		}, 500);
 }
