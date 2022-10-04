@@ -1,11 +1,10 @@
 import express from 'express'
 import {createServer, Server} from 'http'
-import { createHttpTerminator, HttpTerminator } from 'http-terminator'
+import {createHttpTerminator, HttpTerminator} from 'http-terminator'
 
 import {resolveLambdas} from '../lambda'
 import {loggerMiddleware, logger} from '../logger'
 import {AppConfig, LambdaMeta} from '../types'
-
 
 export class HotReloadServer {
 	private readonly port: number
@@ -13,25 +12,25 @@ export class HotReloadServer {
 	private terminator: HttpTerminator | null = null
 	private server: Server | null = null
 
-	constructor(config: AppConfig) {
+	constructor (config: AppConfig) {
 		this.port = config.port
 		this.lambdas = config.lambdas
 		this.respawn = this.respawn.bind(this)
 	}
 
-	private async createServer() {
+	private async createServer (): Promise<void> {
 		const app = express()
 		app.use(loggerMiddleware)
 		await Promise.all(resolveLambdas(app, this.lambdas))
-	 	this.server = createServer(app)
+		this.server = createServer(app)
 	}
 
-	public async respawn(backoffMs = 150, maxRetries = 3) {
-		if (!this.server) {
+	public async respawn (backoffMs = 150, maxRetries = 3): Promise<void> {
+		if (this.server === null) {
 			await this.createServer()
 		}
 		try {
-			if (this.terminator) {
+			if (this.terminator != null) {
 				await this.terminator.terminate()
 			}
 			this.terminator = createHttpTerminator({server: this.server!})
@@ -44,7 +43,9 @@ export class HotReloadServer {
 				logger.error('Unable to spawn server')
 				throw err
 			}
-			setTimeout(() => this.respawn(backoffMs * maxRetries - 1), 150)
+			setTimeout(() => {
+				void this.respawn(backoffMs * maxRetries - 1)
+			}, 150)
 		}
 	}
 }

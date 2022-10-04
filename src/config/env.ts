@@ -1,7 +1,7 @@
 import dotenv from 'dotenv-flow'
 import {logger} from '../logger'
 
-export function loadAndLogEnv() {
+export function loadAndLogEnv (): void {
 	logger.info('Loading env fles')
 	const beforeEnv = Object.keys(process.env)
 	const files = dotenv.listDotenvFiles(process.cwd())

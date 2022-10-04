@@ -2,11 +2,10 @@
 
 import {config, loadAndLogEnv} from './config'
 import chokidar from 'chokidar'
-import { HotReloadServer } from './server'
-import { debounce } from './utils'
+import {HotReloadServer} from './server'
+import {debounce} from './utils'
 
-
-async function main() {
+async function main(): Promise<void> {
 	loadAndLogEnv()
 	const server = new HotReloadServer(config)
 	const watcher = chokidar.watch(process.cwd())

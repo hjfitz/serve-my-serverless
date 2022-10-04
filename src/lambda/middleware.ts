@@ -6,8 +6,8 @@ import {EventBuilder} from './events'
 import type {LambdaMeta, LambdaResponse} from '../types'
 import {createContext} from './context'
 
-export function lambdaHandler(lambda: Handler, meta: LambdaMeta) {
-	return async function(req: Request, res: Response) {
+export function lambdaHandler (lambda: Handler, meta: LambdaMeta) {
+	return async function (req: Request, res: Response) {
 		const cb = (err?: Error | string | null, result?: LambdaResponse) => {
 			if (err) {
 				if (err instanceof Error) {
@@ -19,7 +19,6 @@ export function lambdaHandler(lambda: Handler, meta: LambdaMeta) {
 				const {statusCode, body} = result ?? {statusCode: 200, body: 'ok'}
 				res.status(statusCode).send(body)
 			}
-
 		}
 
 		const context = createContext(meta.name)

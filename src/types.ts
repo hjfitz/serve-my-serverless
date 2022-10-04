@@ -1,9 +1,10 @@
 
-// todo: rename
+type Path = `/${string}`
+
 export interface LambdaMeta {
 	src: string
 	name: string
-	endpoint: `/${string}`
+	endpoint: Path
 	export: string
 }
 
@@ -17,3 +18,8 @@ export interface LambdaResponse {
 	body: string
 }
 
+export interface ParamConfig {
+	path?: Path
+	file?: string
+	export?: string
+}
