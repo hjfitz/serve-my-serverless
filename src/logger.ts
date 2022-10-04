@@ -7,6 +7,4 @@ export const logger = pino({
 	}
 })
 
-export const appLogger = expressLogger({
-	logger,
-})
+export const loggerMiddleware = expressLogger({logger})

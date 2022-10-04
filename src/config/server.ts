@@ -4,9 +4,9 @@ import {readFileSync} from 'fs'
 import {join} from 'path'
 import {isEmpty} from 'ramda'
 
-import {logger} from './logger'
+import {logger} from '../logger'
 import {z} from 'zod'
-import {AppConfig} from './types'
+import {AppConfig} from '../types'
 
 const configSchema = z.object({
 	port: z.number(),
@@ -23,7 +23,7 @@ const configSchema = z.object({
 class ConfigError extends Error {}
 
 
-function parseConfigFile(): AppConfig | null {
+function parseConfigFile(): AppConfig {
 	const configPath = join(process.cwd(), 'config.yml')
 	logger.info(`Reading config from ${configPath}`)
 	const config = parse(readFileSync(configPath).toString()) 
@@ -50,10 +50,10 @@ function getConfigFromParams(): AppConfig | null {
 
 	// use the filename as the endpoint. If the filename is index.*, use the parent dir
 	const opts = prog
-		.option('-p, --path <path>', 'Path to host your lambda handler ')
+		.option('-p, --path <path>', 'API route to host your lambda handler')
 		.option('-f, --file <file>', 'File to load')
 		.option('-e, --export <exports>', 'Exports to import and run. Defaults to `lambda_handler`')
-		.parse()
+		.parse(process.argv)
 		.opts()
 
 	if (isEmpty(opts)) return null
@@ -78,6 +78,6 @@ function getConfigFromParams(): AppConfig | null {
 	}
 }
 
-const config = getConfigFromParams() || parseConfigFile()
 
-export default config as AppConfig
+export const config = getConfigFromParams() || parseConfigFile()
+console.log('oioio')
