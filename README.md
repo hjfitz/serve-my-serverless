@@ -2,6 +2,9 @@
 
 A small webserver to serve your lambdas
 
+
+**Note:** This software is *very* beta and while every attempt has been made to mock the API Gateway event in lambda, your mileage may vary.
+
 ## Getting Started
 
 This project is still in development, so we're a little manual. You can either setup a config file, or pass in some params.
@@ -44,7 +47,7 @@ Alternatively, copy `config-example.yml` to the root of your project and modify 
 - [x] support for cli arguments
 - [x] config validation
 - [x] hot reload
-- [ ] api gateway event object mocking
+- [x] api gateway event object mocking
 
 
 
