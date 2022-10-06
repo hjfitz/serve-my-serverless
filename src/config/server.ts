@@ -10,6 +10,7 @@ import {AppConfig, ParamConfig} from '../types'
 
 const configSchema = z.object({
 	port: z.number(),
+	verbose: z.boolean().optional(),
 	lambdas: z.optional(z.array(
 		z.object({
 			src: z.string(),
@@ -51,6 +52,7 @@ function getConfigFromParams(): AppConfig | null {
 	const opts = prog
 		.option('-p, --path <path>', 'API route to host your lambda handler')
 		.option('-f, --file <file>', 'File to load')
+		.option('-v, --verbose', 'Be verbose with outputs')
 		.option('-e, --export <exports>', 'Exports to import and run. Defaults to `lambda_handler`')
 		.parse(process.argv)
 		.opts<ParamConfig>()
@@ -68,6 +70,7 @@ function getConfigFromParams(): AppConfig | null {
 
 	return {
 		port: 3000,
+		verbose: opts.verbose === true,
 		lambdas: [{
 			src: opts.file,
 			name: 'local',

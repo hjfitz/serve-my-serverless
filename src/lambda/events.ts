@@ -6,8 +6,8 @@ import {randomUUID} from 'node:crypto'
 import {format} from 'date-fns'
 
 export class EventBuilder {
-	constructor (private readonly req: Request) {}
-	public proxyEvent (): APIGatewayProxyEvent {
+	constructor(private readonly req: Request) {}
+	public proxyEvent(): APIGatewayProxyEvent {
 		const {path, method, headers, body, query, params} = this.req
 		const stringBody = (isStringOrNull(body) ? body : JSON.stringify(body)) as string | null
 
@@ -20,14 +20,14 @@ export class EventBuilder {
 
 		return {
 			body: stringBody,
-			headers: singleHeaders,
-			multiValueHeaders: multiHeaders,
+			headers: singleHeaders as Record<string, string>,
+			multiValueHeaders: multiHeaders as Record<string, string[]>,
 			httpMethod: method,
 			isBase64Encoded: false,
 			path,
 			pathParameters: params,
-			queryStringParameters: singleQuery,
-			multiValueQueryStringParameters: multiQuery,
+			queryStringParameters: singleQuery as Record<string, string>,
+			multiValueQueryStringParameters: multiQuery as Record<string, string[]>,
 			stageVariables: null,
 			resource: '',
 			// @ts-expect-error
@@ -35,7 +35,7 @@ export class EventBuilder {
 		}
 	}
 
-	public proxyEventV2 (): APIGatewayProxyEventV2 {
+	public proxyEventV2(): APIGatewayProxyEventV2 {
 		const {body, cookies, headers, query, params, path, url, method, protocol, ip} = this.req
 
 		const now = new Date()

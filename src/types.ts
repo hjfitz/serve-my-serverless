@@ -10,6 +10,7 @@ export interface LambdaMeta {
 
 export interface AppConfig {
 	port: number
+	verbose: boolean
 	lambdas: LambdaMeta[]
 }
 
@@ -22,4 +23,5 @@ export interface ParamConfig {
 	path?: Path
 	file?: string
 	export?: string
+	verbose?: boolean
 }

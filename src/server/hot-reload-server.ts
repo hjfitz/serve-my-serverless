@@ -12,31 +12,46 @@ export class HotReloadServer {
 	private terminator: HttpTerminator | null = null
 	private server: Server | null = null
 
-	constructor (config: AppConfig) {
+	constructor(config: AppConfig) {
 		this.port = config.port
 		this.lambdas = config.lambdas
 		this.respawn = this.respawn.bind(this)
+		this.createServer = this.createServer.bind(this)
 	}
 
-	private async createServer (): Promise<void> {
+	private async createServer(): Promise<void> {
 		const app = express()
 		app.use(loggerMiddleware)
 		await Promise.all(resolveLambdas(app, this.lambdas))
 		this.server = createServer(app)
 	}
 
-	public async respawn (backoffMs = 150, maxRetries = 3): Promise<void> {
-		if (this.server === null) {
-			await this.createServer()
+	private listen(): Promise<void> {
+		if (!this.server) {
+			throw new Error('server not initialised')
 		}
+		return new Promise(res => {
+			this.server!.listen(this.port, () => {
+				logger.info(`App listening at http://localhost:${this.port}`)
+				res()
+			})
+		})
+	}
+
+
+	public async respawn(backoffMs = 150, maxRetries = 3): Promise<void> {
 		try {
-			if (this.terminator != null) {
+			// ugly block start
+			if (this.terminator !== null) {
 				await this.terminator.terminate()
+				await this.createServer()
 			}
+			if (this.server === null) {
+				await this.createServer()
+			}
+			// ugly block end
+			await this.listen()
 			this.terminator = createHttpTerminator({server: this.server!})
-			await new Promise(res => this.server!.listen(this.port, () => res(null)))
-			logger.info(`App listening at http://localhost:${this.port}`)
-			this.lambdas.forEach(lambdaMeta => logger.info(`Mounted endpoint: "${lambdaMeta.name}" => http://localhost:${this.port}${lambdaMeta.endpoint}`))
 		} catch (err) {
 			logger.debug('Unable to spawn server, trying again')
 			if (maxRetries === 0) {

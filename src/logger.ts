@@ -3,7 +3,7 @@ import expressLogger from 'express-pino-logger'
 
 export const logger = pino({
 	transport: {
-	   target: 'pino-pretty'
+		target: 'pino-pretty'
 	}
 })
 

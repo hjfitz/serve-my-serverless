@@ -5,8 +5,8 @@ import {LambdaMeta} from '../types'
 import {logger} from '../logger'
 import {lambdaHandler} from './middleware'
 
-export function resolveLambdas (expressApp: Application, lambdas: LambdaMeta[]) {
-	return lambdas.map(async (lambdaMeta) => {
+export function resolveLambdas(expressApp: Application, lambdas: LambdaMeta[]) {
+	return lambdas.map(async(lambdaMeta) => {
 		try {
 			const importPath = join(process.cwd(), lambdaMeta.src)
 			const file = await import(importPath)
