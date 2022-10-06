@@ -22,6 +22,7 @@ export class HotReloadServer {
 	private async createServer(): Promise<void> {
 		const app = express()
 		app.use(loggerMiddleware)
+		logger.info('resolving lambdas...')
 		await Promise.all(resolveLambdas(app, this.lambdas))
 		this.server = createServer(app)
 	}

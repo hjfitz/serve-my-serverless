@@ -10,6 +10,7 @@ export function resolveLambdas(expressApp: Application, lambdas: LambdaMeta[]) {
 		try {
 			const importPath = join(process.cwd(), lambdaMeta.src)
 			const file = await import(importPath)
+			logger.info(`configuring "${lambdaMeta.name}" => "${lambdaMeta.endpoint}"`)
 			expressApp.all(lambdaMeta.endpoint, lambdaHandler(file[lambdaMeta.export], lambdaMeta))
 		} catch (e: unknown) {
 			logger.warn(lambdaMeta, 'Unable to configure lambda')

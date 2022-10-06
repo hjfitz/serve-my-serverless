@@ -49,7 +49,9 @@ export class EventBuilder {
 			rawPath: this.req.path,
 			rawQueryString: new URL(url).search,
 			cookies,
+			// @ts-ignore
 			headers: stringHeaders,
+			// @ts-ignore
 			queryStringParameters: stringParams,
 			requestContext: {
 				accountId: 'LOCALDEV',
