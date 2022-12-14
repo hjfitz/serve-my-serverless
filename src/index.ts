@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import {config, loadAndLogEnv} from './config'
 import chokidar from 'chokidar'
-import {HotReloadServer} from './server'
-import {debounce} from './utils'
+import { config, loadAndLogEnv } from './config'
+import { HotReloadServer } from './server'
+import { debounce } from './utils'
 
 async function main(): Promise<void> {
 	loadAndLogEnv(config)

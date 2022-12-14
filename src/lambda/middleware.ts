@@ -1,4 +1,3 @@
-
 import type {Handler} from 'aws-lambda'
 import type {Request, Response} from 'express'
 
