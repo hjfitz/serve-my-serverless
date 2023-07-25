@@ -1,16 +1,15 @@
 
-type Path = `/${string}`
 
 export interface LambdaMeta {
 	src: string
 	name: string
-	endpoint: Path
+	endpoint: string 
 	export: string
 }
 
 export interface AppConfig {
 	port: number
-	verbose: boolean
+	verbose?: boolean
 	lambdas: LambdaMeta[]
 }
 
@@ -20,7 +19,7 @@ export interface LambdaResponse {
 }
 
 export interface ParamConfig {
-	path?: Path
+	path?: string 
 	file?: string
 	export?: string
 	verbose?: boolean

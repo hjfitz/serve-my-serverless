@@ -10,7 +10,8 @@
     "build": "tsc && chmod 0755 build/*",
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [],
   "author": "",

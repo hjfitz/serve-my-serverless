@@ -1,28 +1,31 @@
 import express from 'express'
 import {createServer, Server} from 'http'
 import {createHttpTerminator, HttpTerminator} from 'http-terminator'
+import {ConfigService} from '../config'
 
 import {resolveLambdas} from '../lambda'
 import {loggerMiddleware, logger} from '../logger'
-import {AppConfig, LambdaMeta} from '../types'
+import {LambdaMeta} from '../types'
 
 export class HotReloadServer {
 	private readonly port: number
-	private readonly lambdas: LambdaMeta[]
+	private lambdas: LambdaMeta[]
 	private terminator: HttpTerminator | null = null
 	private server: Server | null = null
 
-	constructor(config: AppConfig) {
-		this.port = config.port
-		this.lambdas = config.lambdas
+	constructor(private configService: ConfigService) {
+		this.port = this.configService.config.port
+		this.lambdas = this.configService.config.lambdas
 		this.respawn = this.respawn.bind(this)
 		this.createServer = this.createServer.bind(this)
+		this.refreshConfig = this.refreshConfig.bind(this)
 	}
 
 	private async createServer(): Promise<void> {
 		const app = express()
 		app.use(loggerMiddleware)
 		logger.info('resolving lambdas...')
+		await new Promise(res => setTimeout(res, 250))
 		await Promise.all(resolveLambdas(app, this.lambdas))
 		this.server = createServer(app)
 	}
@@ -39,8 +42,16 @@ export class HotReloadServer {
 		})
 	}
 
+	private refreshConfig(): void {
+		this.configService.refreshConfig()
+		this.lambdas = this.configService.config.lambdas
+	}
 
 	public async respawn(backoffMs = 150, maxRetries = 3): Promise<void> {
+		this.refreshConfig()
+		const hasTeriminator = this.terminator !== null
+		const hasServer = this.server !== null
+		logger.debug(` hasterminator: ${hasTeriminator}, has server: ${hasServer}`)
 		try {
 			// ugly block start
 			if (this.terminator !== null) {
@@ -52,6 +63,7 @@ export class HotReloadServer {
 			}
 			// ugly block end
 			await this.listen()
+			logger.info('setting new terminator')
 			this.terminator = createHttpTerminator({server: this.server!})
 		} catch (err) {
 			logger.debug('Unable to spawn server, trying again')
