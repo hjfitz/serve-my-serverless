@@ -42,6 +42,9 @@ Alternatively, copy `config-example.yml` to the root of your project and modify 
 
 ## Features/Roadmap
 
+- [] Select a port to host on
+- [] ensure this works with multiple lambdas via config.yml
+
 - [x] Initial hosting of lambdas
 - [x] support for custom config
 - [x] support for cli arguments
