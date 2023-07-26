@@ -27,4 +27,5 @@ export const isObjectLiteral = (prop: unknown): boolean => (!Array.isArray(prop)
 export const stringifySafe = (prop: string | object): string => is(String, prop) ? prop : JSON.stringify(prop)
 
 const isString = is(String)
+export const isNum = (prop: unknown): boolean => is(Number, prop)
 export const stringifyObjectValues = (obj: Record<string, unknown>): Record<string, unknown> => map(v => isString(v) ? v : JSON.stringify(v), obj)

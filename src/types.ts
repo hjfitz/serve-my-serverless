@@ -19,7 +19,8 @@ export interface LambdaResponse {
 }
 
 export interface ParamConfig {
-	path?: string 
+	port?: string 
+	route?: string
 	file?: string
 	export?: string
 	verbose?: boolean

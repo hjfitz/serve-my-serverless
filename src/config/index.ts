@@ -6,7 +6,8 @@ import {join} from 'path'
 import {parse} from 'yaml'
 import {readFileSync} from 'fs'
 import {Command} from 'commander'
-import {isEmpty} from 'ramda'
+import {isEmpty, isNaN} from 'ramda'
+import { isNum } from '../utils'
 
 export class ConfigError extends Error {
 	constructor(message: string) {
@@ -79,7 +80,8 @@ export class ConfigService {
 
 		// use the filename as the endpoint. If the filename is index.*, use the parent dir
 		const opts = prog
-			.option('-p, --path <path>', 'API route to host your lambda handler')
+			.option('-r, --route <route>', 'API route to host your lambda handler')
+			.option('-p, --port <port>', 'Port to host your lambda')
 			.option('-f, --file <file>', 'File to load')
 			.option('-v, --verbose', 'Be verbose with outputs')
 			.option('-e, --export <exports>', 'Exports to import and run. Defaults to `lambda_handler`')
@@ -90,15 +92,17 @@ export class ConfigService {
 
 		logger.info('Using args for config')
 
-		const path = opts.path ?? '/'
+		const path = opts.route ?? '/'
 		const handler = opts.export ?? 'lambda_handler'
 
 		if (opts.file === undefined) {
 			throw new ConfigError('File to import not passed')
 		}
 
+		const port = Number(opts.port)
+
 		return {
-			port: 3000,
+			port: isNum(port) ? port : 3000,
 			verbose: opts.verbose === true,
 			lambdas: [{
 				src: opts.file,
