@@ -24,7 +24,7 @@ export class HotReloadServer {
 	private async createServer(): Promise<void> {
 		const app = express()
 		app.use(loggerMiddleware)
-		logger.info('resolving lambdas...')
+		logger.info('Resolving lambdas')
 		await new Promise(res => setTimeout(res, 250))
 		await Promise.all(resolveLambdas(app, this.lambdas))
 		this.server = createServer(app)
@@ -49,9 +49,6 @@ export class HotReloadServer {
 
 	public async respawn(backoffMs = 150, maxRetries = 3): Promise<void> {
 		this.refreshConfig()
-		const hasTeriminator = this.terminator !== null
-		const hasServer = this.server !== null
-		logger.debug(` hasterminator: ${hasTeriminator}, has server: ${hasServer}`)
 		try {
 			// ugly block start
 			if (this.terminator !== null) {
@@ -63,7 +60,6 @@ export class HotReloadServer {
 			}
 			// ugly block end
 			await this.listen()
-			logger.info('setting new terminator')
 			this.terminator = createHttpTerminator({server: this.server!})
 		} catch (err) {
 			logger.debug('Unable to spawn server, trying again')

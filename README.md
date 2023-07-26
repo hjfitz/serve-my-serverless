@@ -43,12 +43,13 @@ Alternatively, copy `config-example.yml` to the root of your project and modify 
 ## Features/Roadmap
 
 **todo**
-- [] Select a port to host on
-- [] ensure this works with multiple lambdas via config.yml
-- [] Layers
-- [] ship it
+- [ ] ensure this works with multiple lambdas via config.yml
+- [ ] Layers
+- [ ] ship it
 
 **done**
+- [x] sqs and api gateway events
+- [x] Select a port to host on
 - [x] Initial hosting of lambdas
 - [x] support for custom config
 - [x] support for cli arguments

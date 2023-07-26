@@ -2,12 +2,14 @@ import {z} from 'zod'
 import dotenv from 'dotenv-flow'
 import {logger} from '../logger'
 import {AppConfig, ParamConfig} from '../types'
-import {join} from 'path'
+import {basename, join} from 'path'
 import {parse} from 'yaml'
 import {readFileSync} from 'fs'
 import {Command} from 'commander'
 import {isEmpty} from 'ramda'
 import {isNum} from '../utils'
+import {IConfigService} from './types'
+import {EventType} from '../lambda'
 
 export class ConfigError extends Error {
 	constructor(message: string) {
@@ -16,17 +18,32 @@ export class ConfigError extends Error {
 	}
 }
 
-export class ConfigService {
+function deriveEventType(type?: string): EventType {
+	switch (type) {
+	case 'sqs': {
+		return EventType.SQS
+    
+	}
+	case 'apig': 
+	default: {
+		return EventType.APIGATEWAY
+	}
+	}
+}
+
+
+export class ConfigService extends IConfigService {
 
 	private readonly schema = z.object({
-		port: z.number(),
+		port: z.number().int().max(65535).default(3000),
 		verbose: z.boolean().optional(),
 		lambdas: z.array(
 			z.object({
 				src: z.string(),
 				name: z.string(),
 				endpoint: z.string().startsWith('/'),
-				export: z.string()
+				export: z.string(),
+				eventType: z.string().optional().transform(deriveEventType),
 			})
 		)
 	})
@@ -34,17 +51,18 @@ export class ConfigService {
 	public config: AppConfig
 
 	constructor() {
+		super()
 		this.refreshConfig = this.refreshConfig.bind(this)
 		this.config = this.getConfig()
 		this.loadEnv(this.config.verbose ?? false)
 	}
 
 
-	private loadEnv(verbose: boolean): void {
+	protected loadEnv(verbose: boolean): void {
 		logger.info('Loading env fles')
 		const beforeEnv = Object.keys(process.env)
 		const files = dotenv.listDotenvFiles(process.cwd())
-		files.forEach(f => logger.info(`Loaded env from ${f}`))
+		files.forEach(f => logger.info(`Loaded env from ./${basename(f)}`))
 		dotenv.config({silent: true})
 		const afterEnv = Object.keys(process.env)
 		let loadedVariables = ''
@@ -53,18 +71,27 @@ export class ConfigService {
 		} else {
 			loadedVariables = afterEnv.filter(v => !beforeEnv.includes(v)).join('\n\t> ')
 		}
-		logger.info(`From env, loaded: \n\t> ${loadedVariables}`)
+		if (loadedVariables.length) {
+			logger.info(`From env, loaded: \n\t> ${loadedVariables}`)
+		} else {
+			logger.info('No new env variables loaded')
+		}
 	}
 
-	private loadFromFile(): AppConfig | null {
+	protected loadFromFile(): AppConfig | null {
 		const configPath = join(process.cwd(), 'config.yml')
-		logger.info(`Reading config from ${configPath}`)
 		try {
 			const rawConfig = parse(readFileSync(configPath, 'utf-8'))
+			logger.info('Read config from ./config.yml')
 			const parsedConfig = this.schema.parse(rawConfig)
 			logger.info('Config validated')
 			return parsedConfig
 		} catch (err) {
+			if ((err as any).code === 'ENOENT') {
+				return null
+			}
+
+
 			logger.warn('Unable to parse config file')
 			if (err instanceof Error) {
 				logger.warn(err.message)
@@ -75,7 +102,7 @@ export class ConfigService {
 		}
 	}
 
-	private loadFromArgs(): AppConfig | null {
+	protected loadFromArgs(): AppConfig | null {
 		const prog = new Command()
 
 		// use the filename as the endpoint. If the filename is index.*, use the parent dir
@@ -85,6 +112,7 @@ export class ConfigService {
 			.option('-f, --file <file>', 'File to load')
 			.option('-v, --verbose', 'Be verbose with outputs')
 			.option('-e, --export <exports>', 'Exports to import and run. Defaults to `lambda_handler`')
+			.option('-t, --type <event-type>', 'Event type to use. SQS or APIG. Defaults to `APIG')
 			.parse(process.argv)
 			.opts<ParamConfig>()
 
@@ -108,26 +136,29 @@ export class ConfigService {
 				src: opts.file,
 				name: 'local',
 				endpoint: path,
-				export: handler
+				export: handler,
+				eventType: deriveEventType(opts.type)
 			}]
 		}
 
 	}
 
-	private getConfig(): AppConfig {
+	protected getConfig(): AppConfig {
 
 		let config = this.loadFromFile()
 
 		if (!config) {
-			logger.info('No file config found. Using args config')
+			logger.info('No config file found')
 			config = this.loadFromArgs()
 		} else {
-			logger.info('Using file config')
+			logger.info('Using file-based config')
 		}
 
 		if (!config) {
 			logger.error('No config found. Exiting')
 			process.exit(1)
+		} else {
+			logger.info('Config loaded from args')
 		}
 
 		return config

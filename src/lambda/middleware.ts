@@ -1,7 +1,7 @@
 import type {Handler} from 'aws-lambda'
 import type {Request, Response} from 'express'
 
-import {EventBuilder} from './events'
+import {EventBuilder, EventType} from './events'
 import type {LambdaMeta, LambdaResponse} from '../types'
 import {createContext} from './context'
 
@@ -21,8 +21,9 @@ export function lambdaHandler(lambda: Handler, meta: LambdaMeta) {
 		}
 
 		const context = createContext(meta.name)
-		const builder = new EventBuilder(req)
-		const event = builder.proxyEvent()
+		const builder = new EventBuilder(req, meta.eventType)
+		
+		const event = builder.build()
 
 		try {
 			const {statusCode, body} = await lambda(event, context, cb)

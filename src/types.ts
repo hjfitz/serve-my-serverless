@@ -1,3 +1,4 @@
+import {EventType} from './lambda'
 
 
 export interface LambdaMeta {
@@ -5,6 +6,7 @@ export interface LambdaMeta {
 	name: string
 	endpoint: string 
 	export: string
+	eventType: EventType
 }
 
 export interface AppConfig {
@@ -24,4 +26,5 @@ export interface ParamConfig {
 	file?: string
 	export?: string
 	verbose?: boolean
+	type?: string
 }
