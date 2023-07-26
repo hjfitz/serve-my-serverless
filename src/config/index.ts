@@ -6,8 +6,8 @@ import {join} from 'path'
 import {parse} from 'yaml'
 import {readFileSync} from 'fs'
 import {Command} from 'commander'
-import {isEmpty, isNaN} from 'ramda'
-import { isNum } from '../utils'
+import {isEmpty} from 'ramda'
+import {isNum} from '../utils'
 
 export class ConfigError extends Error {
 	constructor(message: string) {

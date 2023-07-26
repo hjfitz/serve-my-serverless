@@ -22,10 +22,10 @@ export function makeHeadersCaseInsensitive(headers: IncomingHttpHeaders): Incomi
 	return {...headers, ...upper}
 }
 
-export const isStringOrNull = (prop: unknown): boolean => is(String, prop) || isNil(prop)
+export const isString = is(String)
+export const isStringOrNull = (prop: unknown): boolean => isString(prop) || isNil(prop)
 export const isObjectLiteral = (prop: unknown): boolean => (!Array.isArray(prop)) && is(Object, prop)
-export const stringifySafe = (prop: string | object): string => is(String, prop) ? prop : JSON.stringify(prop)
+export const stringifySafe = (prop: string | object): string => isString(prop) ? prop : JSON.stringify(prop)
 
-const isString = is(String)
 export const isNum = (prop: unknown): boolean => is(Number, prop)
 export const stringifyObjectValues = (obj: Record<string, unknown>): Record<string, unknown> => map(v => isString(v) ? v : JSON.stringify(v), obj)
