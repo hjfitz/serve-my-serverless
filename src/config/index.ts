@@ -3,8 +3,8 @@ import dotenv from 'dotenv-flow'
 import {logger} from '../logger'
 import {AppConfig, ParamConfig} from '../types'
 import {basename, join} from 'path'
-import {parse} from 'yaml'
-import {readFileSync} from 'fs'
+import {parse, stringify} from 'yaml'
+import {readFileSync, writeFileSync} from 'fs'
 import {Command} from 'commander'
 import {isEmpty} from 'ramda'
 import {isNum} from '../utils'
@@ -102,6 +102,24 @@ export class ConfigService extends IConfigService {
 		}
 	}
 
+	private createConfigFile(): void {
+		const config = {
+			port: 3001,
+			lambdas: [{
+				src: './lambda.ts',
+				name: 'lambda_handler',
+				endpoint: '/',
+				export: 'lambda_handler',
+				eventType: 'APIGATEWAY'
+			}]
+		}
+		const stringConfig = stringify(config, {indent: 2})
+		const configName = join(process.cwd(), 'config.yml')
+
+		writeFileSync(configName, stringConfig)
+	}
+
+
 	protected loadFromArgs(): AppConfig | null {
 		const prog = new Command()
 
@@ -113,10 +131,16 @@ export class ConfigService extends IConfigService {
 			.option('-v, --verbose', 'Be verbose with outputs')
 			.option('-e, --export <exports>', 'Exports to import and run. Defaults to `lambda_handler`')
 			.option('-t, --type <event-type>', 'Event type to use. SQS or APIG. Defaults to `APIG')
+			.option('-i, --init', 'Initialize a new config file')
 			.parse(process.argv)
 			.opts<ParamConfig>()
 
 		if (isEmpty(opts)) return null
+
+		if (opts.init) {
+			this.createConfigFile()
+			process.exit(0)
+		}
 
 		logger.info('Using args for config')
 

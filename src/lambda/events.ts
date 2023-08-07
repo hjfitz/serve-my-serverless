@@ -23,6 +23,7 @@ export class EventBuilder {
 
 	public proxyEvent(): APIGatewayProxyEvent {
 		const {path, method, headers, body, query, params} = this.req
+
 		const stringBody = (isStringOrNull(body) ? body : JSON.stringify(body)) as string | null
 
 		const insensitiveHeaders = makeHeadersCaseInsensitive(headers)
@@ -40,7 +41,8 @@ export class EventBuilder {
 			isBase64Encoded: false,
 			path,
 			pathParameters: params,
-			queryStringParameters: singleQuery as Record<string, string>,
+			// temp fix
+			queryStringParameters: query as Record<string, string>, //singleQuery as Record<string, string>,
 			multiValueQueryStringParameters: multiQuery as Record<string, string[]>,
 			stageVariables: null,
 			resource: '',
@@ -53,6 +55,7 @@ export class EventBuilder {
 		const {cookies, headers, query, params, path, url, method, protocol, ip} = this.req
 
 		const now = new Date()
+
 
 		const stringHeaders = stringifyObjectValues(headers)
 		const stringParams = stringifyObjectValues(query)

@@ -32,6 +32,5 @@ export const stringifySafe = (prop: string | object): string => isString(prop) ?
 export const isNum = (prop: unknown): boolean => is(Number, prop)
 export const stringifyObjectValues = (obj: Record<string, unknown>): Record<string, unknown> => map(v => isString(v) ? v : JSON.stringify(v), obj)
 
-
 export const md5 = async(msg: string): Promise<string> => createHash('md5').update(msg).digest('hex')
 

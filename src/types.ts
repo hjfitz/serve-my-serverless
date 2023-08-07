@@ -27,4 +27,5 @@ export interface ParamConfig {
 	export?: string
 	verbose?: boolean
 	type?: string
+	init?: string
 }

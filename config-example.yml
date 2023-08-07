@@ -6,7 +6,9 @@ lambdas:
     name: ingestion
     endpoint: /ingestion
     export: lambda_handler
+    eventType: APIGATEWAY
   - src: src/taxonomy-api/index.js
     name: taxonomy-api
     endpoint: /taxonomy
     export: lambda_handler
+    eventType: APIGATEWAY
