@@ -9,8 +9,8 @@ export function resolveLambdas(expressApp: Application, lambdas: LambdaMeta[]) {
 	return lambdas.map(async(lambdaMeta) => {
 		try {
 			const modPath = resolve(process.cwd(), lambdaMeta.src)
-			const file = await import(modPath)
 			delete require.cache[modPath]
+			const file = await import(modPath)
 			logger.info(`configuring "${lambdaMeta.name}" => "${lambdaMeta.endpoint}" (event type: ${lambdaMeta.eventType})`)
 			expressApp.all(lambdaMeta.endpoint, lambdaHandler(file[lambdaMeta.export], lambdaMeta))
 		} catch (e: unknown) {

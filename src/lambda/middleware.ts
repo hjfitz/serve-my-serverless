@@ -26,7 +26,8 @@ export function lambdaHandler(lambda: Handler, meta: LambdaMeta) {
 		const event = builder.build()
 
 		try {
-			const {statusCode, body} = await lambda(event, context, cb)
+			const {statusCode, body, headers} = await lambda(event, context, cb)
+			if (headers) res.set(headers)
 			res.status(statusCode).send(body)
 		} catch (err) {
 			if (err instanceof Error) {

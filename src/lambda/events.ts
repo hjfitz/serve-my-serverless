@@ -34,7 +34,7 @@ export class EventBuilder {
 		const singleQuery = map(pickBy(either(is(String), isObjectLiteral), query), stringifySafe)
 
 		return {
-			body: stringBody,
+			body: body,
 			headers: singleHeaders as Record<string, string>,
 			multiValueHeaders: multiHeaders as Record<string, string[]>,
 			httpMethod: method,

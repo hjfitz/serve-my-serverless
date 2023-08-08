@@ -1,6 +1,9 @@
 import express from 'express'
 import {createServer, Server} from 'http'
 import {createHttpTerminator, HttpTerminator} from 'http-terminator'
+import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
+
 import {ConfigService} from '../config'
 
 import {resolveLambdas} from '../lambda'
@@ -24,6 +27,8 @@ export class HotReloadServer {
 	private async createServer(): Promise<void> {
 		const app = express()
 		app.use(loggerMiddleware)
+		app.use(bodyParser.json())
+		app.use(cookieParser())
 		logger.info('Resolving lambdas')
 		await new Promise(res => setTimeout(res, 250))
 		await Promise.all(resolveLambdas(app, this.lambdas))
