@@ -24,14 +24,13 @@ export class EventBuilder {
 	public proxyEvent(): APIGatewayProxyEvent {
 		const {path, method, headers, body, query, params} = this.req
 
-		const stringBody = (isStringOrNull(body) ? body : JSON.stringify(body)) as string | null
 
 		const insensitiveHeaders = makeHeadersCaseInsensitive(headers)
 		const multiHeaders = pickBy(Array.isArray, insensitiveHeaders)
 		const singleHeaders = pickBy(is(String), insensitiveHeaders)
 
 		const multiQuery = pickBy(Array.isArray, query)
-		const singleQuery = map(pickBy(either(is(String), isObjectLiteral), query), stringifySafe)
+		const singleQuery = map(stringifySafe, pickBy(either(is(String), isObjectLiteral), query)) as unknown as Record<string, string>
 
 		return {
 			body: body,
@@ -42,12 +41,40 @@ export class EventBuilder {
 			path,
 			pathParameters: params,
 			// temp fix
-			queryStringParameters: query as Record<string, string>, //singleQuery as Record<string, string>,
+			queryStringParameters: singleQuery,
 			multiValueQueryStringParameters: multiQuery as Record<string, string[]>,
 			stageVariables: null,
 			resource: '',
-			// @ts-expect-error
-			requestContext: {}
+			requestContext: {
+				authorizer: {},
+				protocol: 'HTTP/1.1',
+				accountId: '123456789012',
+				resourceId: 'us4z18',
+				stage: 'test',
+				requestId: '41b45ea3-70b5-11e6-b7bd-69b5aaebc7d9',
+				identity: {
+					accessKey: '',
+					apiKeyId: '',
+					cognitoIdentityPoolId: '',
+					accountId: '',
+					cognitoIdentityId: '',
+					caller: '',
+					apiKey: '',
+					sourceIp: '192.168.100.1',
+					cognitoAuthenticationType: '',
+					cognitoAuthenticationProvider: '',
+					userArn: '',
+					userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.82 Safari/537.36 OPR/39.0.2256.48',
+					user: '',
+					principalOrgId: null,
+					clientCert: null
+				},
+				path: '',
+				requestTimeEpoch: 0,
+				resourcePath: path,
+				httpMethod: method,
+				apiId: 'wt6mne2s9k',
+			},
 		}
 	}
 
